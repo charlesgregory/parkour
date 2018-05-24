@@ -165,16 +165,29 @@ class TestFlowcell(BaseTestCase):
 
         library1 = create_library(get_random_name(), 4)
         library2 = create_library(get_random_name(), 4)
+        library3 = create_library(get_random_name(), 4)
+
         sample1 = create_sample(get_random_name(), 4)
         sample2 = create_sample(get_random_name(), 4)
+        sample3 = create_sample(get_random_name(), 4)
+
+        pools1 = []
+        pools2 = []
 
         pool1 = create_pool(self.user)
         pool1.libraries.add(library1)
         pool1.samples.add(sample1)
+        pools1.append(pool1.pk)
 
         pool2 = create_pool(self.user)
         pool2.libraries.add(library2)
         pool2.samples.add(sample2)
+        pools1.append(pool2.pk)
+
+        pool3 = create_pool(self.user)
+        pool3.libraries.add(library3)
+        pool3.samples.add(sample3)
+        pools2.append(pool3.pk)
 
         sequencer = create_sequencer(get_random_name(), lanes=4)
         flowcell = create_flowcell(get_random_name(), sequencer)
@@ -182,14 +195,17 @@ class TestFlowcell(BaseTestCase):
         lanes1 = []
         for i in range(2):
             name = 'Lane {}'.format(i + 1)
-            lane = Lane(name=name, pool=pool1)
+            lane = Lane(name=name)
+            lane.pools.add(pool1)
             lane.save()
             lanes1.append(lane.pk)
 
         lanes2 = []
         for i in range(2, 4):
             name = 'Lane {}'.format(i + 1)
-            lane = Lane(name=name, pool=pool2, completed=True)
+            lane = Lane(name=name)
+            lane.pools.add(pool1)
+            lane.completed = True
             lane.save()
             lanes2.append(lane.pk)
 
