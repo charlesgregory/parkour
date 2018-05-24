@@ -17,14 +17,14 @@ class Sequencer(models.Model):
 
 class Lane(models.Model):
     name = models.CharField('Name', max_length=6)
-    pool = models.ForeignKey(Pool, verbose_name='Pool')
+    pools = models.ManyToManyField(Pool, related_name='Pool',blank=True)
     loading_concentration = models.FloatField(
         'Loading Concentration', blank=True, null=True)
     phix = models.FloatField('PhiX %', blank=True, null=True)
     completed = models.BooleanField('Completed', default=False)
 
     def __str__(self):
-        return f'{self.name}: {self.pool.name}'
+        return f'{self.name}: {self.pools.name}'
 
     def save(self, *args, **kwargs):
         created = self.pk is None
@@ -33,8 +33,9 @@ class Lane(models.Model):
         # When a Lane objects is created, increment the loaded value of the
         # related pool
         if created:
-            self.pool.loaded += 1
-            self.pool.save(update_fields=['loaded'])
+            for x in self.pools.all():
+                x.loaded += 1
+                x.save(update_fields=['loaded'])
 
 
 class Flowcell(DateTimeMixin):
